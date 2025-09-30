@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+
 class Grid_reader:
     """_summary класс для чтения сеток различных форматов
     """
@@ -16,28 +17,64 @@ class Grid_reader:
         # try:
         x_coords = []
         y_coords = []
+
+        x_blocks = []
+        y_blocks = []
         
         with open(file_path, "r") as f:
-            lines = f.readlines()
-            self.x_dim_ = int(lines[1].strip().split()[0])
-            self.y_dim_ = int(lines[1].strip().split()[1])
-            lines = lines[2:]
+            nbl = int(f.readline().strip())
 
-        index_key = True
-        for line in lines:
-            line_ = line.strip().split()
-            if index_key:
-                x_coords.append(line_[0])
-                y_coords.append(line_[1])
-                x_coords.append(line_[2])
-                index_key = False
-            else:
-                y_coords.append(line_[0])
-                x_coords.append(line_[1])
-                y_coords.append(line_[2])
-                index_key = True
+            dims = []
+            line = f.readline().split()
+
+            for n in range(nbl):
+                idim = int(line[2*n])
+                jdim = int(line[2*n + 1])
+                dims.append((idim, jdim))
+
+            for n in range(nbl):
+                idim, jdim = dims[n]
+            
+            # Чтение строки с данными для блока
+                clear_list = []
+                lines = f.readlines()
+                for line in lines:
+                    for l in line.split():
+                        clear_list.append(l.strip())
+                print(clear_list)
+            
+            # Общее количество элементов для x и y
+                total_elements = idim * jdim * 2
+            
+            # Проверка достаточности данны
+                
+                data = list(map(float, clear_list))
+                x_data = data[:idim*jdim]
+                y_data = data[idim*jdim:2*idim*jdim]
+                
+                # Преобразование в 2D массивы с правильной формой
+                x_block = x_data
+                y_block = y_data
+                
+                x_blocks.append(x_data)
+                y_blocks.append(y_data)
+
+        # index_key = True
+        # for line in lines:
+        #     line_ = line.strip().split()
+        #     if index_key:
+        #         x_coords.append(line_[0])
+        #         y_coords.append(line_[1])
+        #         x_coords.append(line_[2])
+        #         index_key = False
+        #     else:
+        #         y_coords.append(line_[0])
+        #         x_coords.append(line_[1])
+        #         y_coords.append(line_[2])
+        #         index_key = True
         
-        self.coords_mesh = np.array([x_coords, y_coords]).transpose().astype(float)
+        self.coords_mesh_x, self.coords_mesh_y = np.array(x_blocks).transpose(), np.array(y_blocks).transpose()
+
 
     def plot_all_mesh(self, format=None, name="", test=True):
         
